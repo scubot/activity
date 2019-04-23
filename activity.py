@@ -12,18 +12,22 @@ class Activity(commands.Cog):
 
     @staticmethod
     async def determine_last_message(channel, table):
-        for item in reversed(table):
+        if not len(table):
+            return None
+        for item in reversed(table.all()):
             try:
-                i = channel.fetch_message(item['id'])
+                i = await channel.fetch_message(item['id'])
                 return i
             except discord.NotFound:
                 continue
 
     async def sync_channel(self, channel):
-        channel_table = self.db.table(channel.id)
-        last_scraped_messaged = self.determine_last_message(channel, channel_table)
-        async for message in channel.history(limit=None, after=last_scraped_messaged):
-            channel_table.add({
+        channel_id = str(channel.id)
+        channel_table = self.db.table(channel_id)
+        last_scraped_message = await self.determine_last_message(channel, channel_table)
+        async for message in channel.history(limit=None, after=last_scraped_message, oldest_first=True):
+            print(message.content)
+            channel_table.insert({
                 'id': message.id,
                 'timestamp': message.created_at.timestamp(),
                 'author_id': message.author.id,
@@ -35,13 +39,13 @@ class Activity(commands.Cog):
         pass
 
     @activity.command(name="update")
-    async def update(self, ctx, *, channel: discord.TextChannel = None):
+    async def update(self, ctx, channel: discord.TextChannel = None):
         target = Query()
         update_list = []
         if not channel:
             update_list = ctx.guild.text_channels
         else:
-            update_list = update_list.append(channel)
+            update_list.append(channel)
 
         for c in update_list:
             if self.blacklist.get(target.id == c.id) is not None:
@@ -62,3 +66,7 @@ class Activity(commands.Cog):
     @activity.command(name="user")
     async def user_stat(self, ctx):
         pass
+
+
+def setup(bot):
+    bot.add_cog(Activity(bot))
