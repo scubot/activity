@@ -4,21 +4,19 @@ import time
 import discord
 from discord.ext import commands
 from tinydb import Query, TinyDB
+import database
 import tqdm
+import aiosqlite
 
 
 class Activity(commands.Cog):
     def __init__(self, bot):
         self.version = "1.0.0"
         self.bot = bot
-        self.db = TinyDB('./modules/databases/activity')
-        self.blacklist = self.db.table('blacklist')
+        self.dao = database.Database('./modules/databases/activity.db')
 
-    @staticmethod
-    async def determine_last_message(channel, table):
-        if not len(table):
-            return None
-        for item in reversed(table.all()):
+    async def determine_last_message(self, channel):
+        for item in self.dao.get_last_messages(channel):
             try:
                 i = await channel.fetch_message(item['id'])
                 return i
@@ -26,19 +24,15 @@ class Activity(commands.Cog):
                 continue
 
     async def sync_channel(self, channel, pbar, pbar_message):
-        channel_id = str(channel.id)
-        channel_table = self.db.table(channel_id)
-        last_scraped_message = await self.determine_last_message(channel, channel_table)
+        last_scraped_message = None
         time_last = time.time()
+        buffer = []
         async for message in channel.history(limit=None, after=last_scraped_message, oldest_first=True):
+            buffer.append(message)
+            if len(buffer) >= 10000:
+                self.dao.buffered_message_insert(buffer)
+                buffer = []
             time_now = time.time()
-            print(message.content)
-            channel_table.insert({
-                'id': message.id,
-                'timestamp': message.created_at.timestamp(),
-                'author_id': message.author.id,
-                'content': message.content
-            })
             pbar.update(1)
             if time_now - time_last >= 5:
                 await pbar_message.edit(content=pbar)
@@ -82,11 +76,20 @@ class Activity(commands.Cog):
             await self.sync_channel(c, bar, m)
 
     @commands.has_any_role('moderators', 'admin', 'devs')
-    @activity.command(name="blacklist")
+    @activity.command(name="ignorechannel")
     async def blacklist(self, ctx, *, channel: discord.TextChannel):
-        target = Query()
-        if self.blacklist.get(target.id == channel.id) is None:
-            self.blacklist.insert({'id': str(channel.id)})
+        self.dao.insert_blacklist_channel(channel)
+
+    @activity.command(name="forgetme")
+    async def forgetme(self, ctx, *, confirm: discord.Member = None):
+        if not discord.Member:
+            await ctx.send("[!] Are you sure you want to be forgotten? This operation **CANNOT** be undone! "
+                           "You will be permanently excluded from all message scrapes, and your stored messages will be"
+                           " deleted. Please mention yourself to confirm this action.")
+        if not ctx.author == confirm:
+            return
+        self.dao.insert_blacklist_user(ctx.author)
+        await ctx.send("[:ok_hand:] You will be forgotten and your messages have been queued for deletion.")
 
     @activity.command(name="channel")
     async def channel_stat(self, ctx):
