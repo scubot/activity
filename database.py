@@ -21,6 +21,14 @@ class Database:
 
         self.database.commit()
 
+    def is_in_blacklist_channel(self, channel):
+        return False
+        pass
+
+    def is_in_blacklist_user(self, user):
+        return False
+        pass
+
     def get_last_messages(self, channel):
         # Return None if query is empty
         c = self.database.cursor()

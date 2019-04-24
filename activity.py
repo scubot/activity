@@ -3,10 +3,8 @@ import time
 
 import discord
 from discord.ext import commands
-from tinydb import Query, TinyDB
-import database
+import modules.activity.database as database
 import tqdm
-import aiosqlite
 
 
 class Activity(commands.Cog):
@@ -37,6 +35,8 @@ class Activity(commands.Cog):
             if time_now - time_last >= 5:
                 await pbar_message.edit(content=pbar)
                 time_last = time.time()
+        await pbar_message.edit(content=pbar)
+        pbar.close()
 
     # @commands.Cog.listener()
     # async def on_message(self, message):
@@ -60,7 +60,6 @@ class Activity(commands.Cog):
 
     @activity.command(name="update")
     async def update(self, ctx, channel: discord.TextChannel = None):
-        target = Query()
         update_list = []
         if not channel:
             update_list = ctx.guild.text_channels
@@ -68,12 +67,13 @@ class Activity(commands.Cog):
             update_list.append(channel)
 
         for c in update_list:
-            if self.blacklist.get(target.id == c.id) is not None:
+            if self.dao.is_in_blacklist_channel(channel):
                 continue
-            await ctx.send("Now scraping " + str(c))
+            n = await ctx.send("Now scraping " + str(c) + "...")
             bar = tqdm.tqdm(total=0, unit=' messages', mininterval=3, file=open(os.devnull, 'w'))
             m = await ctx.send(bar)
             await self.sync_channel(c, bar, m)
+            await n.edit(content="Now scraping " + str(c) + "... done.")
 
     @commands.has_any_role('moderators', 'admin', 'devs')
     @activity.command(name="ignorechannel")
