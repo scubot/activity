@@ -9,13 +9,13 @@ class Database:
     # Set-up the database for use or something.
     def setup(self):
         c = self.database.cursor()
-        c.execute('''CREATE TABLE Blacklist_Channel
+        c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_Channel
         (channel_id INTEGER NOT NULL)''')
 
-        c.execute('''CREATE TABLE Blacklist_User
+        c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_User
         (user_id INTEGER NOT NULL)''')
 
-        c.execute('''CREATE TABLE Messages (
+        c.execute('''CREATE TABLE IF NOT EXISTS Messages (
         channel_id INT NOT NULL, message_id INT NOT NULL, timestamp INT NOT NULL, author_id INT NOT NULL, 
         content TEXT)''')
 
@@ -55,14 +55,14 @@ class Database:
 
     def buffered_message_insert(self, messages):
         c = self.database.cursor()
-        c.executemany('INSERT INTO Messages VALUES (?, ?, ?, ?)', [(message.channel.id, message.id,
-                                                                    message.created_at.timestamp(),
-                                                                    message.author.id, message.content)
-                                                                   for message in messages])
+        c.executemany('INSERT INTO Messages VALUES (?, ?, ?, ?, ?)', [(message.channel.id, message.id,
+                                                                       message.created_at.timestamp(),
+                                                                       message.author.id, message.content)
+                                                                      for message in messages])
+        self.database.commit()
 
     def get_message(self, message_id):
         pass
 
     def get_all_messages_from_channel(self, channel_id):
         pass
-

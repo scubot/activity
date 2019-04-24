@@ -3,7 +3,7 @@ import time
 
 import discord
 from discord.ext import commands
-import modules.activity.database as database
+import database as database
 import tqdm
 
 
@@ -35,6 +35,8 @@ class Activity(commands.Cog):
             if time_now - time_last >= 5:
                 await pbar_message.edit(content=pbar)
                 time_last = time.time()
+
+        self.dao.buffered_message_insert(buffer)
         await pbar_message.edit(content=pbar)
         pbar.close()
 
