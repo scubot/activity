@@ -40,7 +40,7 @@ class Database:
 
     def message_insert(self, message):
         c = self.database.cursor()
-        c.execute('''INSERT INTO ? VALUES (?, ?, ?, ?)''', (
+        c.execute('''INSERT INTO Messages VALUES (?, ?, ?, ?, ?)''', (
             message.channel.id, message.id, message.created_at.timestamp(), message.author.id, message.content
         ))
         self.database.commit()
