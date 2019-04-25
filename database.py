@@ -32,7 +32,8 @@ class Database:
     def get_last_messages(self, channel):
         # Return None if query is empty
         c = self.database.cursor()
-        c.execute('''SELECT message_id FROM Messages WHERE channel_id=? ORDER BY timestamp DESC LIMIT 100''', channel.id)
+        c.execute('''SELECT message_id FROM Messages WHERE channel_id=? ORDER BY timestamp DESC LIMIT 100''',
+                  (channel.id,))
         results = c.fetchall()
         return results
 

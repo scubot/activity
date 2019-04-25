@@ -12,6 +12,7 @@ class Activity(commands.Cog):
         self.version = "1.0.0"
         self.bot = bot
         self.dao = database.Database('./modules/databases/activity.db')
+        self.dao.setup()
 
     async def determine_last_message(self, channel):
         for item in self.dao.get_last_messages(channel):
@@ -22,7 +23,7 @@ class Activity(commands.Cog):
                 continue
 
     async def sync_channel(self, channel, pbar, pbar_message):
-        last_scraped_message = None
+        last_scraped_message = self.determine_last_message(channel)
         time_last = time.time()
         buffer = []
         async for message in channel.history(limit=None, after=last_scraped_message, oldest_first=True):
