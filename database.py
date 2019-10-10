@@ -1,4 +1,6 @@
 # Database Abstraction Object for storing messages
+
+# Database in use is SQLite3
 import sqlite3
 
 
@@ -22,12 +24,10 @@ class Database:
         self.database.commit()
 
     def is_in_blacklist_channel(self, channel):
-        return False
-        pass
+        return False  # Placeholder
 
     def is_in_blacklist_user(self, user):
-        return False
-        pass
+        return False  # Placeholder
 
     def get_last_messages(self, channel):
         # Return None if query is empty

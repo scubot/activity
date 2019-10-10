@@ -41,22 +41,6 @@ class Activity(commands.Cog):
         await pbar_message.edit(content=pbar)
         pbar.close()
 
-    # @commands.Cog.listener()
-    # async def on_message(self, message):
-    #     target = Query()
-    #     if self.blacklist.get(target.id == str(message.channel.id)):
-    #         return
-    #     self.db.table(str(message.channel.id)).insert({
-    #         'id': message.id,
-    #         'timestamp': message.created_at.timestamp(),
-    #         'author_id': message.author.id,
-    #         'content': message.content
-    #     })
-    #
-    # @commands.Cog.listener()
-    # async def on_ready(self):
-    #     print("[INFO] Now scraping missed messages for defined servers")
-
     @commands.group(invoke_without_commands=False)
     async def activity(self, ctx):
         pass
@@ -82,17 +66,6 @@ class Activity(commands.Cog):
     @activity.command(name="ignorechannel")
     async def blacklist(self, ctx, *, channel: discord.TextChannel):
         self.dao.insert_blacklist_channel(channel)
-
-    @activity.command(name="forgetme")
-    async def forgetme(self, ctx, *, confirm: discord.Member = None):
-        if not discord.Member:
-            await ctx.send("[!] Are you sure you want to be forgotten? This operation **CANNOT** be undone! "
-                           "You will be permanently excluded from all message scrapes, and your stored messages will be"
-                           " deleted. Please mention yourself to confirm this action.")
-        if not ctx.author == confirm:
-            return
-        self.dao.insert_blacklist_user(ctx.author)
-        await ctx.send("[:ok_hand:] You will be forgotten and your messages have been queued for deletion.")
 
     @activity.command(name="channel")
     async def channel_stat(self, ctx):
