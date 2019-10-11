@@ -29,7 +29,9 @@ class Database:
         return c.fetchone() is not None
 
     def is_in_blacklist_user(self, user):
-        return False  # Placeholder
+        c = self.database.cursor()
+        c.execute('''SELECT user_id FROM Blacklist_User WHERE user_id=?''', (user.id,))
+        return c.fetchone() is not None
 
     def get_last_messages(self, channel):
         # Return None if query is empty
