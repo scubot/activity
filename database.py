@@ -79,7 +79,7 @@ class Database:
         c.executemany('INSERT INTO Attachments VALUES (?, ?)', filter(lambda x: x[1] is not None,
                                                                       [self.make_attachment_tuple(message, attachment)
                                                                        for message in messages
-                                                                       for attachment in message]))
+                                                                       for attachment in message.attachments]))
         self.database.commit()
 
     def get_message(self, message_id):

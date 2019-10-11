@@ -17,13 +17,13 @@ class Activity(commands.Cog):
     async def determine_last_message(self, channel):
         for item in self.dao.get_last_messages(channel):
             try:
-                i = await channel.fetch_message(item['id'])
+                i = await channel.fetch_message(item[0])
                 return i
             except discord.NotFound:
                 continue
 
     async def sync_channel(self, channel, pbar, pbar_message):
-        last_scraped_message = self.determine_last_message(channel)
+        last_scraped_message = await self.determine_last_message(channel)
         time_last = time.time()
         buffer = []
         async for message in channel.history(limit=None, after=last_scraped_message, oldest_first=True):
@@ -54,7 +54,7 @@ class Activity(commands.Cog):
             update_list.append(channel)
 
         for c in update_list:
-            if self.dao.is_in_blacklist_channel(channel):
+            if self.dao.is_in_blacklist_channel(c):
                 continue
             n = await ctx.send("Now scraping " + str(c) + "...")
             bar = tqdm.tqdm(total=0, unit=' messages', mininterval=3, file=open(os.devnull, 'w'))
