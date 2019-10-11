@@ -15,7 +15,7 @@ class Database:
         (channel_id INTEGER UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_User
-        (user_id INTEGER UNIQUE NOT NULL UNIQUE)''')
+        (user_id INTEGER UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Messages (
         channel_id INT NOT NULL, message_id INT NOT NULL, timestamp INT NOT NULL, author_id INT NOT NULL, 
