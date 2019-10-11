@@ -2,6 +2,7 @@
 
 # Database in use is SQLite3
 import sqlite3
+import discord
 
 
 class Database:
@@ -18,8 +19,11 @@ class Database:
         (user_id INTEGER UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Messages (
-        channel_id INT NOT NULL, message_id INT NOT NULL, timestamp INT NOT NULL, author_id INT NOT NULL, 
+        channel_id INT NOT NULL, message_id INT NOT NULL PRIMARY KEY, timestamp INT NOT NULL, author_id INT NOT NULL, 
         content TEXT)''')
+
+        c.execute('''CREATE TABLE IF NOT EXISTS Attachments (message_id INT NOT NULL, file_url TEXT DEFAULT NULL, 
+        FOREIGN KEY (message_id) REFERENCES Messages (message_id))''')
 
         self.database.commit()
 
@@ -59,12 +63,23 @@ class Database:
         ))
         self.database.commit()
 
+    def make_attachment_tuple(self, message, attachment):
+        try:
+            return message.id, attachment.url
+        except discord.HTTPException:
+            return None
+
     def buffered_message_insert(self, messages):
         c = self.database.cursor()
         c.executemany('INSERT INTO Messages VALUES (?, ?, ?, ?, ?)', [(message.channel.id, message.id,
                                                                        message.created_at.timestamp(),
                                                                        message.author.id, message.content)
                                                                       for message in messages])
+
+        c.executemany('INSERT INTO Attachments VALUES (?, ?)', filter(lambda x: x[1] is not None,
+                                                                      [self.make_attachment_tuple(message, attachment)
+                                                                       for message in messages
+                                                                       for attachment in message]))
         self.database.commit()
 
     def get_message(self, message_id):
