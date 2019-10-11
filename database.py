@@ -12,10 +12,10 @@ class Database:
     def setup(self):
         c = self.database.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_Channel
-        (channel_id INTEGER NOT NULL)''')
+        (channel_id INTEGER UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_User
-        (user_id INTEGER NOT NULL)''')
+        (user_id INTEGER UNIQUE NOT NULL UNIQUE)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Messages (
         channel_id INT NOT NULL, message_id INT NOT NULL, timestamp INT NOT NULL, author_id INT NOT NULL, 
