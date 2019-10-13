@@ -78,3 +78,7 @@ class Activity(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Activity(bot))
+
+
+def teardown(bot):
+    bot.get_cog("Activity").dao.disconnect()

@@ -9,6 +9,9 @@ class Database:
     def __init__(self, path):
         self.database = sqlite3.connect(path)
 
+    def disconnect(self):
+        self.database.close()
+
     # Set-up the database for use or something.
     def setup(self):
         c = self.database.cursor()
