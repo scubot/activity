@@ -19,8 +19,8 @@ class Database:
         (user_id INTEGER UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Messages (
-        channel_id INT NOT NULL, message_id INT NOT NULL PRIMARY KEY, timestamp INT NOT NULL, author_id INT NOT NULL, 
-        content TEXT)''')
+        guild_id INT NOT NULL, channel_id INT NOT NULL, message_id INT NOT NULL PRIMARY KEY, timestamp INT NOT NULL,
+        author_id INT NOT NULL, content TEXT)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Attachments (message_id INT NOT NULL, file_url TEXT DEFAULT NULL, 
         FOREIGN KEY (message_id) REFERENCES Messages (message_id))''')
@@ -58,9 +58,9 @@ class Database:
 
     def message_insert(self, message):
         c = self.database.cursor()
-        c.execute('''INSERT INTO Messages VALUES (?, ?, ?, ?, ?)''', (
-            message.channel.id, message.id, message.created_at.timestamp(), message.author.id, message.content
-        ))
+        c.execute('''INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?)''', (
+            message.guild.id, message.channel.id, message.id, message.created_at.timestamp(), message.author.id,
+            message.content))
         self.database.commit()
 
     def make_attachment_tuple(self, message, attachment):
@@ -71,10 +71,10 @@ class Database:
 
     def buffered_message_insert(self, messages):
         c = self.database.cursor()
-        c.executemany('INSERT INTO Messages VALUES (?, ?, ?, ?, ?)', [(message.channel.id, message.id,
-                                                                       message.created_at.timestamp(),
-                                                                       message.author.id, message.content)
-                                                                      for message in messages])
+        c.executemany('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?)', [(message.guild.id, message.channel.id,
+                                                                          message.id, message.created_at.timestamp(),
+                                                                          message.author.id, message.content)
+                                                                         for message in messages])
 
         c.executemany('INSERT INTO Attachments VALUES (?, ?)', filter(lambda x: x[1] is not None,
                                                                       [self.make_attachment_tuple(message, attachment)
