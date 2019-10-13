@@ -76,7 +76,7 @@ class Database:
                                                                        message.author.id, message.content)
                                                                       for message in messages])
 
-        c.executemany('INSERT INTO Attachments VALUES (?, ?)', filter(lambda x: x[1] is not None,
+        c.executemany('INSERT INTO Attachments VALUES (?, ?)', filter(lambda x: x is not None,
                                                                       [self.make_attachment_tuple(message, attachment)
                                                                        for message in messages
                                                                        for attachment in message.attachments]))
