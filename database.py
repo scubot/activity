@@ -16,10 +16,10 @@ class Database:
     def setup(self):
         c = self.database.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_Channel
-        (channel_id INTEGER UNIQUE NOT NULL)''')
+        (channel_id INT UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Blacklist_User
-        (user_id INTEGER UNIQUE NOT NULL)''')
+        (user_id INT UNIQUE NOT NULL)''')
 
         c.execute('''CREATE TABLE IF NOT EXISTS Messages (
         guild_id INT NOT NULL, channel_id INT NOT NULL, message_id INT NOT NULL PRIMARY KEY, timestamp INT NOT NULL,
@@ -50,13 +50,13 @@ class Database:
 
     def insert_blacklist_channel(self, channel):
         c = self.database.cursor()
-        c.execute('''INSERT OR IGNORE INTO Blacklist_Channel VALUES (?)''', channel.id)
+        c.execute('''INSERT OR IGNORE INTO Blacklist_Channel VALUES (?)''', (channel.id,))
         c.execute('''DELETE FROM Messages WHERE channel_id=?''', (channel.id,))
         self.database.commit()
 
     def insert_blacklist_user(self, user):
         c = self.database.cursor()
-        c.execute('''INSERT OR IGNORE INTO Blacklist_User VALUES (?)''', user.id)
+        c.execute('''INSERT OR IGNORE INTO Blacklist_User VALUES (?)''', (user.id,))
         self.database.commit()
 
     def message_insert(self, message):

@@ -3,7 +3,7 @@ import time
 
 import discord
 from discord.ext import commands
-import database as database
+import modules.activity.database as database
 import tqdm
 
 
@@ -65,15 +65,8 @@ class Activity(commands.Cog):
     @commands.has_any_role('moderators', 'admin', 'devs')
     @activity.command(name="ignorechannel")
     async def blacklist(self, ctx, *, channel: discord.TextChannel):
+        await ctx.send("[:ok_hand:] Channel is blacklisted and relevant messages removed.")
         self.dao.insert_blacklist_channel(channel)
-
-    @activity.command(name="channel")
-    async def channel_stat(self, ctx):
-        pass
-
-    @activity.command(name="user")
-    async def user_stat(self, ctx):
-        pass
 
 
 def setup(bot):
