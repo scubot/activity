@@ -56,11 +56,12 @@ class Activity(commands.Cog):
         for c in update_list:
             if self.dao.is_in_blacklist_channel(c):
                 continue
-            n = await ctx.send("Now scraping " + str(c) + "...")
+            now_scraping = await ctx.send("Now scraping " + c.mention + "...")
             bar = tqdm.tqdm(total=0, unit=' messages', mininterval=3, file=open(os.devnull, 'w'))
-            m = await ctx.send(bar)
-            await self.sync_channel(c, bar, m)
-            await n.edit(content="Now scraping " + str(c) + "... done.")
+            progress_bar = await ctx.send(bar)
+            await self.sync_channel(c, bar, progress_bar)
+            await now_scraping.edit(content="Now scraping " + c.mention + "... done.")
+        await ctx.send("[:ok_hand:] Update complete.")
 
     @commands.has_any_role('moderators', 'admin', 'devs')
     @activity.command(name="ignorechannel")
