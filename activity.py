@@ -66,8 +66,12 @@ class Activity(commands.Cog):
     @commands.has_any_role('moderators', 'admin', 'devs')
     @activity.command(name="ignorechannel")
     async def blacklist(self, ctx, *, channel: discord.TextChannel):
-        await ctx.send("[:ok_hand:] Channel is blacklisted and relevant messages removed.")
-        self.dao.insert_blacklist_channel(channel)
+        if self.dao.is_in_blacklist_channel(channel):
+            self.dao.remove_blacklist_channel(channel)
+            await ctx.send("[:ok_hand:] Channel has been removed from the blacklist.")
+        else:
+            self.dao.insert_blacklist_channel(channel)
+            await ctx.send("[:ok_hand:] Channel is blacklisted and relevant messages removed.")
 
 
 def setup(bot):

@@ -54,6 +54,11 @@ class Database:
         c.execute('''DELETE FROM Messages WHERE channel_id=?''', (channel.id,))
         self.database.commit()
 
+    def remove_blacklist_channel(self, channel):
+        c = self.database.cursor()
+        c.execute('''DELETE FROM Blacklist_Channel WHERE channel_id=?''', (channel.id,))
+        self.database.commit()
+
     def insert_blacklist_user(self, user):
         c = self.database.cursor()
         c.execute('''INSERT OR IGNORE INTO Blacklist_User VALUES (?)''', (user.id,))
