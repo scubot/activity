@@ -63,7 +63,7 @@ class Activity(commands.Cog):
             await now_scraping.edit(content="Now scraping " + c.mention + "... done.")
         await ctx.send("[:ok_hand:] Update complete.")
 
-    @commands.has_any_role('moderators', 'admin', 'devs')
+    @commands.has_any_role('Moderators', 'Admin', 'devs')
     @activity.command(name="ignorechannel")
     async def blacklist(self, ctx, *, channel: discord.TextChannel):
         if self.dao.is_in_blacklist_channel(channel):
